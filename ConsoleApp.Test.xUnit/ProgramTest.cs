@@ -1,24 +1,26 @@
+using ConsoleApp;
+
 namespace ConsoleApp.Test.xUnit
 {
     public class ProgramTest
     {
         [Fact]
-        public void Test1()
+        public void Main_HelloWorldOnOutput()
         {
+            //Arrange
+            var stringWriter = new StringWriter();
+            var originalOutput = Console.Out;
+            Console.SetOut(stringWriter);
 
-        }
+            var entryPoint = typeof(Program).Assembly.EntryPoint;
 
-        [Fact]
-        public void Test2()
-        {
+            //Act
+            entryPoint.Invoke(null, new object[] { Array.Empty<string>() });
 
-
-        }
-
-        [Fact]
-        public void Test3()
-        {
-
+            //Assert
+            Console.SetOut(originalOutput);
+            Assert.Equal("Hello, World!\n", stringWriter.ToString(), ignoreLineEndingDifferences: true);
+            stringWriter.Dispose();
         }
     }
 }
