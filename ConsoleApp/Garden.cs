@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -39,6 +40,25 @@ namespace ConsoleApp
         public ICollection<string> GetPlants()
         {
             return _items.ToList();
+        }
+
+        public bool Remove(string name)
+        {
+            if (!_items.Contains(name))
+                return false;
+
+            _items.Remove(name);
+            return true;
+        }
+
+        public void Clear()
+        {
+            _items.Clear();
+        }
+
+        public int Count()
+        {
+            return _items.Count;
         }
     }
 }
