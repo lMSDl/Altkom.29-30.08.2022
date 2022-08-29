@@ -15,7 +15,7 @@ namespace ConsoleApp
         public Garden(int size)
         {
             if (size <= 0)
-                throw new ArgumentException(nameof(size));
+                throw new ArgumentException();
             Size = size;
             _items = new List<string>();
         }

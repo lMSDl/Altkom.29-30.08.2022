@@ -2,9 +2,57 @@ using Xunit;
 
 namespace ConsoleApp.Test.xUnit
 {
-    public class GardenTest
+    public class GardenTest : IDisposable
     {
+
+        private Garden Garden { get; }
+
+        //Odpowiednik SetUp [BadPractise]
+        public GardenTest()
+        {
+            Garden = new Garden(1);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        [InlineData(int.MinValue)]
+        public void Garden_InvalidSize_Exception(int invalidSize)
+        {
+            //Act
+            Action result = () => new Garden(invalidSize);
+
+            //Assert
+            Assert.ThrowsAny<ArgumentException>(result);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(int.MaxValue)]
+        public void Garden_ValidSize_SizeInit(int validSize)
+        {
+            //Act
+            var garden = new Garden(validSize);
+
+            //Assert
+            Assert.Equal(validSize, garden.Size);
+        }
+
         [Fact]
+        public void Garden_ValidSize_ListNotNull()
+        {
+            //Arrange
+            int validSize = 1;
+
+            //Act
+            var garden = new Garden(validSize);
+
+            //Assert
+            Assert.NotNull(garden.GetPlants());
+        }
+
+
+        [Fact(Skip = "replaced by Plant_ValidName_ExpectedResultIndicatingOverflow")]
         //public void Plant_<scenatio>_<result>()
         //public void Plant_<scenatio&result>()
         //public void Plant_PassValidAndUniqueName_ReturnsTrue()
@@ -21,7 +69,7 @@ namespace ConsoleApp.Test.xUnit
             Assert.True(result);
         }
 
-        [Fact]
+        [Fact(Skip = "replaced by Plant_ValidName_ExpectedResultIndicatingOverflow")]
         public void Plant_GardenOverflow_False()
         {
             //Arrange
@@ -37,7 +85,25 @@ namespace ConsoleApp.Test.xUnit
             Assert.False(result);
         }
 
-        [Fact]
+        [Theory]
+        [InlineData(1, false)]
+        [InlineData(2, true)]
+        public void Plant_ValidName_ExpectedResultIndicatingOverflow(int gardenSize, bool expectedResult)
+        {
+            //Arrange
+            var garden = new Garden(gardenSize);
+            var validPlantName1 = "a";
+            var validPlantName2 = "b";
+            garden.Plant(validPlantName1);
+
+            //Act
+            var result = garden.Plant(validPlantName2);
+
+            //Assert
+            Assert.Equal(expectedResult, result);
+        }
+
+        [Fact(Skip = "replaced by Plant_InvalidName_ArgumentException")]
         public void Plant_WhitespaceName_ArgumentException()
         {
             //Arrange
@@ -51,6 +117,24 @@ namespace ConsoleApp.Test.xUnit
             var argumentNullException = Assert.Throws<ArgumentException>(result);
             Assert.Equal("Name", argumentNullException.ParamName, ignoreCase: true);
         }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void Plant_InvalidName_ArgumentException(string invalidName)
+        {
+            //Arrange
+            var gardern = new Garden(1);
+
+            //Act
+            Action result = () => gardern.Plant(invalidName);
+
+            //Assert
+            var argumentNullException = Assert.ThrowsAny<ArgumentException>(result);
+            Assert.Equal("Name", argumentNullException.ParamName, ignoreCase: true);
+        }
+
         [Fact]
         public void Plant_ExistingName_ArgumentException()
         {
@@ -67,7 +151,8 @@ namespace ConsoleApp.Test.xUnit
             Assert.Equal("Name", argumentNullException.ParamName, ignoreCase: true);
             Assert.Contains("Roœlina ju¿ istnieje w ogrodzie", argumentNullException.Message);
         }
-        [Fact]
+
+        [Fact(Skip = "replaced by Plant_InvalidName_ArgumentException")]
         public void Plant_NullName_ArgumentNullException()
         {
             //Arrange
@@ -114,6 +199,28 @@ namespace ConsoleApp.Test.xUnit
 
             //Assert
             Assert.DoesNotContain(validPlantName2, garden.GetPlants());
+        }
+
+
+        [Fact]
+        public void Plant_CopyOfPlantsList()
+        {
+            //Arrange
+            var garden = new Garden(1);
+
+            //Act
+            var list1 = garden.GetPlants();
+            var list2 = garden.GetPlants();
+
+            //Assert
+            Assert.NotSame(list1, list2);
+        }
+
+
+        //Odpowiednik TearDown [BadPractise]
+        public void Dispose()
+        {
+
         }
     }
 }
