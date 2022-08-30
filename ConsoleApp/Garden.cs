@@ -12,6 +12,12 @@ namespace ConsoleApp
         public int Size { get; }
         private ICollection<string> _items { get; }
 
+        private ILogger _logger;
+
+        public Garden(int size, ILogger logger) : this(size)
+        {
+            _logger = logger;
+        }
 
         public Garden(int size)
         {
@@ -23,6 +29,9 @@ namespace ConsoleApp
 
         public bool Plant(string name)
         {
+
+            //_logger?.Log($"Dodawanie rośliny");
+
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
             if (string.IsNullOrWhiteSpace(name))
@@ -31,9 +40,13 @@ namespace ConsoleApp
                 throw new ArgumentException("Roślina już istnieje w ogrodzie", nameof(name));
 
             if (_items.Count() >= Size)
+            {
+                _logger?.Log($"Brak miejsca na {name}");
                 return false;
+            }
 
             _items.Add(name);
+            _logger?.Log($"Roślina {name} została dodana do ogrodu");
             return true;
         }
 
@@ -48,6 +61,7 @@ namespace ConsoleApp
                 return false;
 
             _items.Remove(name);
+            _logger?.Log($"Roślina {name} została usunięta z ogrodu");
             return true;
         }
 
@@ -59,6 +73,11 @@ namespace ConsoleApp
         public int Count()
         {
             return _items.Count;
+        }
+
+        public string ShowLastLog()
+        {
+            return _logger.GetLogs(DateTime.Now.AddMinutes(-1), DateTime.Now).Split('\n').Last();
         }
     }
 }

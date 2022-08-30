@@ -1,3 +1,6 @@
+using FluentAssertions;
+using Moq;
+using System.Diagnostics;
 using Xunit;
 
 namespace ConsoleApp.Test.xUnit
@@ -206,7 +209,8 @@ namespace ConsoleApp.Test.xUnit
         public void Plant_CopyOfPlantsList()
         {
             //Arrange
-            var garden = new Garden(1);
+            var loggerStub = new Mock<ILogger>();
+            var garden = new Garden(1, loggerStub.Object);
 
             //Act
             var list1 = garden.GetPlants();
@@ -221,6 +225,50 @@ namespace ConsoleApp.Test.xUnit
         public void Dispose()
         {
 
+        }
+
+        [Fact]
+        public void Plant_ValidUniqueName_MessageLogged()
+        {
+            //Arrage
+            var loggerMock = new Mock<ILogger>();
+            //logger.Setup(x => x.Log(It.IsAny<string>())).Verifiable();
+
+            var gardern = new Garden(1, loggerMock.Object);
+            var name = "a";
+
+            //Act
+            gardern.Plant(name);
+
+            //Assert
+            //logger.Verify(x => x.Log($"Roœlina {name} zosta³a dodana do ogrodu"));
+            loggerMock.Verify(x => x.Log(It.IsAny<string>()), Times.Once);
+
+            //logger.Verify();
+        }
+
+        [Fact]
+        public void ShowLastLog_LastLog()
+        {
+            //Arrage
+            var name1 = "a";
+            var name2 = "b";
+
+
+            var loggerStub = new Mock<ILogger>();
+            loggerStub.Setup(x => x.GetLogs(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .Returns($"{name1}\n{name2}");
+
+
+            var gardern = new Garden(1, loggerStub.Object);
+            gardern.Plant(name1);
+            gardern.Plant(name2);
+
+            //Act
+            var result = gardern.ShowLastLog();
+
+            //Assert
+            result.Should().Be(name2);
         }
     }
 }
