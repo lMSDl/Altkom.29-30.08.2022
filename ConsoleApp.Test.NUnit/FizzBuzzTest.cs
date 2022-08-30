@@ -1,4 +1,7 @@
-﻿using System;
+﻿using FluentAssertions;
+using FluentAssertions.Extensions;
+using FluentAssertions.Specialized;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -90,5 +93,18 @@ namespace ConsoleApp.Test.NUnit
                 .All(x => x.First == x.Second));
         }
 
+        [Test]
+        public void Compute_10000_ExecutionTimeBelow1s()
+        {
+            //Arrage
+            var count = 10000;
+
+            //Act
+            Action act = () => FizzBuzz.Compute(count);
+
+            //Assert
+            act.ExecutionTime().Should().BeLessThanOrEqualTo(1.Seconds());
+
+        }
     }
 }

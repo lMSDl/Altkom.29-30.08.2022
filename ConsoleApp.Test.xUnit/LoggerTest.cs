@@ -2,6 +2,7 @@
 using FluentAssertions.Execution;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -76,6 +77,24 @@ namespace ConsoleApp.Test.xUnit
             //Assert
             monitor.Should().Raise(nameof(Logger.MessageLogged))
                 .WithSender(logger);
+        }
+
+        [Fact]
+        public void GetLogsAsync_ReturnLoggedMessages()
+        {
+            //Arrange
+            var logger = new Logger();
+            logger.Log("A");
+
+            //Act
+            var task = logger.GetLogsAsync(DateTime.Now.AddSeconds(-1), DateTime.Now);
+            task.Wait();
+            var result = task.Result;
+
+            //Assert
+            task.IsCompletedSuccessfully.Should().BeTrue();
+            result.Should().Contain("A");
+            DateTime.TryParseExact(result.Split(": ")[0], "dd.MM.yyyy hh:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out _).Should().BeTrue();
         }
     }
 }
